@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import ResultModal from "./ResultModal";
 
 /**
  * If the timerId variable was declared here, it won't be reset upon each component-execution since it is no longer declared inside the component function.
@@ -32,10 +33,16 @@ export default function TimerChallenge({title, targetTime}) {
     const [timerStarted, setTimerStarted] = useState(false);
     const [timeExpired, setTimerExpired] = useState(false);
 
+    // Ref variable so that we can access dialog from the RestModal component over here
+    const dialog = useRef();
+
     // Start the timer when 'Start challenge' button is clicked
     function handleStart() {
         timerId.current = setTimeout(() => {
             setTimerExpired(true);
+
+            // By default dialog has a display:none property set on it. To show it upon timer expiration:
+            dialog.current.showModal();
         }, targetTime*1000); // Converting targetTime from seconds to miliseconds
 
         setTimerStarted(true);
@@ -49,20 +56,25 @@ export default function TimerChallenge({title, targetTime}) {
         setTimerStarted(false);
     }
     return (
-        <section className="challenge">
-            <h2>{title}</h2>
-            {timeExpired && <p>You lost!</p>}
-            <p className="challenge-time">
-                {targetTime} second{targetTime > 1 ? 's' : ''}
-            </p>
-            <p>
-                <button onClick={timerStarted ? handleStop : handleStart}>
-                    {timerStarted ? 'Stop' : 'Start'} challenge
-                </button>
-            </p>
-            <p className={timerStarted ? 'active' : undefined}>
-                {timerStarted ? 'Timmer running...' : 'Timer inactive'}
-            </p>
-        </section>
-    )
+        <>
+            {/* This method of passing ref from one component to another alone won't work as we will get an error saying 'ref is not a prop'.
+                To do so, we should also use the forwardRef function provided by React.
+            */}
+            <ResultModal ref={dialog} result="lost" targetTime={targetTime} />
+            <section className="challenge">
+                <h2>{title}</h2>
+                <p className="challenge-time">
+                    {targetTime} second{targetTime > 1 ? 's' : ''}
+                </p>
+                <p>
+                    <button onClick={timerStarted ? handleStop : handleStart}>
+                        {timerStarted ? 'Stop' : 'Start'} challenge
+                    </button>
+                </p>
+                <p className={timerStarted ? 'active' : undefined}>
+                    {timerStarted ? 'Timmer running...' : 'Timer inactive'}
+                </p>
+            </section>
+        </>
+    );
 }
