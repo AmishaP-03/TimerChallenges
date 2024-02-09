@@ -13,7 +13,13 @@ const ResultModal = forwardRef(function ResultModal({targetTime, remainingTime, 
 
     return (
         // ref prop is supported by all built-in components
-        <dialog ref={ref} className="result-modal">
+
+        /**
+         * The <dialog> element allows website visitors to close the opened dialog by pressing the ESC (Escape) key on their keyboard.
+         * Currently, this will not trigger the onReset function though (unlike closing the dialog with a button click).
+         * To make sure that onReset gets triggered when the dialog is closed via the escape key, we should add the built-in onClose prop to the <dialog> element and bind it to the onReset prop value.
+         */
+        <dialog ref={ref} className="result-modal" onClose={onReset}>
             <h2>You {result}</h2>
             {result === 'win' && <h3>Your score: {score}</h3>}
             <p>The target time was <strong>{targetTime} seconds</strong></p>
