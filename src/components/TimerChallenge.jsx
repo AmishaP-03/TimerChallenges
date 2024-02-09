@@ -30,49 +30,60 @@ export default function TimerChallenge({title, targetTime}) {
      */
     // let timerId;
 
-    const [timerStarted, setTimerStarted] = useState(false);
-    const [timeExpired, setTimerExpired] = useState(false);
+    const targetTimeInMs = targetTime*1000; // Converting targetTime from seconds to miliseconds
+    const [remainingTime, setRemainingTime] = useState(targetTimeInMs); 
+    const isTimerActive = remainingTime > 0 && remainingTime < targetTimeInMs
 
     // Ref variable so that we can access dialog from the RestModal component over here
     const dialog = useRef();
 
-    // Start the timer when 'Start challenge' button is clicked
+    // Check for time left once the timer is started
     function handleStart() {
-        timerId.current = setTimeout(() => {
-            setTimerExpired(true);
-
-            // By default dialog has a display:none property set on it. To show it upon timer expiration:
-            dialog.current.showModal();
-        }, targetTime*1000); // Converting targetTime from seconds to miliseconds
-
-        setTimerStarted(true);
+        // setInterval executes the callback function everytime the given time elapses (here: 10 ms).
+        // It returns a reference/id for the started timer.
+        // setInterval goes on infinitely unless it is explicityly cleared
+        timerId.current = setInterval(() => {
+            setRemainingTime((currentRemainingTime) => currentRemainingTime - 10)
+        }, 10);
     }
 
+    // Handle the logic once the remaining time is 0 i.e the timer has expired
+    if (remainingTime <= 0) {
+        clearInterval(timerId.current);
+
+        // By default dialog has a display:none property set on it. To show it upon timer expiration:
+        dialog.current.showModal();
+    }
+
+    // Handle the logic when the timer is manually stopped
     function handleStop() {
-        // Stop the timer.
-        // clearTimeout needs the id of the time to be stopped as an input.
-        // However this fails to stop the timer
-        clearTimeout(timerId.current);
-        setTimerStarted(false);
+        // Stop the timer
+        clearInterval(timerId.current);
+        dialog.current.showModal();
     }
+
+    function handleRemainingTimeReset() {
+        setRemainingTime(targetTimeInMs);
+    }
+
     return (
         <>
             {/* This method of passing ref from one component to another alone won't work as we will get an error saying 'ref is not a prop'.
                 To do so, we should also use the forwardRef function provided by React.
             */}
-            <ResultModal ref={dialog} result="lost" targetTime={targetTime} />
+            <ResultModal ref={dialog} targetTime={targetTime} remainingTime={remainingTime} onReset={handleRemainingTimeReset}/>
             <section className="challenge">
                 <h2>{title}</h2>
                 <p className="challenge-time">
                     {targetTime} second{targetTime > 1 ? 's' : ''}
                 </p>
                 <p>
-                    <button onClick={timerStarted ? handleStop : handleStart}>
-                        {timerStarted ? 'Stop' : 'Start'} challenge
+                    <button onClick={isTimerActive ? handleStop : handleStart}>
+                        {isTimerActive ? 'Stop' : 'Start'} challenge
                     </button>
                 </p>
-                <p className={timerStarted ? 'active' : undefined}>
-                    {timerStarted ? 'Timmer running...' : 'Timer inactive'}
+                <p className={isTimerActive ? 'active' : undefined}>
+                    {isTimerActive ? 'Timmer running...' : 'Timer inactive'}
                 </p>
             </section>
         </>
