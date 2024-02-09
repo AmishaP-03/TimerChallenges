@@ -8,10 +8,14 @@ const ResultModal = forwardRef(function ResultModal({targetTime, remainingTime, 
     const result = remainingTime <= 0 ? 'lost' : 'win';
     const formattedRemainingTime = (remainingTime / 1000).toFixed(2); // To show till 2 decimal places
 
+    // Compute a score between 0-100
+    const score = Math.round((1 - remainingTime / (targetTime * 1000)) * 100);
+
     return (
         // ref prop is supported by all built-in components
         <dialog ref={ref} className="result-modal">
             <h2>You {result}</h2>
+            {result === 'win' && <h3>Your score: {score}</h3>}
             <p>The target time was <strong>{targetTime} seconds</strong></p>
             <p>You stopped the timer with <strong>{formattedRemainingTime}</strong> seconds left</p>
 
