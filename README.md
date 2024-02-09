@@ -25,4 +25,7 @@ Results modal when the timer was not stopped withing the given time:
 ![image](https://github.com/AmishaP-03/TimerChallenges/assets/154746893/92908325-8bab-4578-b9c6-96893cc13cc3)
 
 
+DOM optimization:
+
+![image](https://github.com/AmishaP-03/TimerChallenges/assets/154746893/c37ae0b0-b312-4050-85e5-65d47da19902)
 
