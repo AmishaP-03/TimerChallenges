@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import { createPortal } from 'react-dom';
 
 /**
  * Value returned by forwardRef is also a component
@@ -11,7 +12,12 @@ const ResultModal = forwardRef(function ResultModal({targetTime, remainingTime, 
     // Compute a score between 0-100
     const score = Math.round((1 - remainingTime / (targetTime * 1000)) * 100);
 
-    return (
+    /** We will teleport this component to be rendered inside the div element with id = modal in index.html file because
+     *  visually the dialog modal sits on top of the entire page's content and so it would make more sense to have it before
+     *  div with id = 'content' in the DOM.
+     *  This would lead to better mapping of its visual appreance to its position in the HTML structure
+     */
+    return createPortal(
         // ref prop is supported by all built-in components
 
         /**
@@ -29,7 +35,8 @@ const ResultModal = forwardRef(function ResultModal({targetTime, remainingTime, 
             <form method="dialog" onSubmit={onReset}>
                 <button>Close</button>
             </form>
-        </dialog>
+        </dialog>,
+        document.getElementById('modal')
     );
 });
 
